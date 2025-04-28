@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Munchies - My Orders</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    <header>
+        <div class="container">
+            <div class="logo"><h1>Munchies</h1></div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="{{ url_for('orders') }}" class="active">My Orders</a></li>
+                    <li><a href="{{ url_for('menu') }}">Menu</a></li>
+                    <li><a href="{{ url_for('order') }}">Order</a></li>
+                    {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                        <li class="greeting">Hi, {{ current_user.fullname }}</li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}">Login</a></li>
+                        <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="orders-section">
+        <div class="container">
+            <h2>My Orders</h2>
+            {% if orders %}
+            <div class="orders-cards">
+                {% for order in orders %}
+                <div class="order-card">
+                    {% if order.item_list %}
+                    {% set first = order.item_list[0][0] %}
+                    <img src="{{ url_for('static', filename='assets/' + first.replace(' ', '_')|lower + '.jpg') }}" alt="{{ first }}">
+                    {% endif %}
+                    <div class="order-details">
+                        <h3>Order #{{ order.id }}</h3>
+                        <ul class="order-items-list">
+                            {% for name, qty in order.item_list %}
+                            <li>{{ name }} × {{ qty }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p>Type: {{ order.order_type }}</p>
+                        <p>Delivery Time: {{ order.delivery_time }}</p>
+                        <p>Status: Pending</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p>No pending orders.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
